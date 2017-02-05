@@ -27,7 +27,8 @@ namespace Hearthstone_Deck_Tracker.LogReader
 		private static readonly ArenaHandler ArenaHandler = new ArenaHandler();
 		private static readonly LoadingScreenHandler LoadingScreenHandler = new LoadingScreenHandler();
 		private static readonly FullScreenFxHandler FullScreenFxHandler = new FullScreenFxHandler();
-		private static LogReader _gameStatePowerLogReader;
+        private static readonly AchievementsHandler AchievementsHandler = new AchievementsHandler();
+        private static LogReader _gameStatePowerLogReader;
 		private static LogReader _powerLogReader;
 		private static LogReader _loadingScreenLogReader;
 		private static HsGameState _gameState;
@@ -46,6 +47,7 @@ namespace Hearthstone_Deck_Tracker.LogReader
 			LogReaders.Add(new LogReader(RachelleLogReaderInfo));
 			LogReaders.Add(new LogReader(ArenaLogReaderInfo));
 			LogReaders.Add(new LogReader(FullScreenFxLogReaderInfo));
+            LogReaders.Add(new LogReader(AchievementsLogInfo));
 		}
 
 		public static async Task Start(GameV2 game)
@@ -195,7 +197,10 @@ namespace Hearthstone_Deck_Tracker.LogReader
 						case "FullScreenFX":
 							FullScreenFxHandler.Handle(line, _game);
 							break;
-					}
+                        case "Achievements":
+                            AchievementsHandler.Handle(line, _game);
+                            break;
+                    }
 				}
 			}
 			ToProcess.Clear();

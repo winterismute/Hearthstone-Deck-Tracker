@@ -792,6 +792,7 @@ namespace Hearthstone_Deck_Tracker
 					Log.Info($"Gamemode {_game.CurrentGameMode} is not supposed to be saved. Removed game from default {_game.Player.Class}.");
 				}
 			}
+            QuestStats.Save();
 		}
 
 		public void HandlePlayerHeroPower(string cardId, int turn)

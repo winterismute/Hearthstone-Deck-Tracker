@@ -21,7 +21,10 @@ namespace Hearthstone_Deck_Tracker.LogReader
 		public static readonly Regex LegendRankRegex = new Regex(@"legend rank (?<rank>(\d+))");
 		public static readonly Regex BeginBlurRegex = new Regex(@"BeginEffect blur \d => 1");
 
-		public static LogReaderInfo PowerLogReaderInfo => new LogReaderInfo
+        public static readonly Regex AchieveNotificationRegex = new Regex(@"OnAchieveNotification PlayerID=(?<playerid>(\d+)) ID=(?<id>(\d+)) Complete=(?<completed>(.+)) New=(?<new>(.+)) Remove=(?<remove>(.+)) Amount=(?<amount>(.+))");
+        public static readonly Regex AchievementNotificationRegex = new Regex(@"OnAchievementNotification: Achievement=[Achievement: ID=(?<id>(\d+)) AchieveGroup=(?<group>(.+)) Name='(?<name>(.+))' MaxProgress=(?<maxprogress>(\d+)) Progress=(?<progress>(\d+)) AckProgress=(?<ackprogress>(.*)) IsActive=(?<isactive>(.+)) DateGiven=(?<dategiven>(\d+)) DateCompleted=(?<datecompleted>(\d+)) Description='(?<description>(.+))'");
+
+        public static LogReaderInfo PowerLogReaderInfo => new LogReaderInfo
 		{
 			Name = "Power",
 			StartsWithFilters = new[] {"PowerTaskList.DebugPrintPower"},
@@ -33,8 +36,10 @@ namespace Hearthstone_Deck_Tracker.LogReader
 		public static LogReaderInfo LoadingScreenLogReaderInfo => new LogReaderInfo {Name = "LoadingScreen", StartsWithFilters = new[] {"LoadingScreen.OnSceneLoaded", "Gameplay" } };
 		public static LogReaderInfo GameStatePowerLogReaderInfo => new LogReaderInfo {Name = "Power", StartsWithFilters = new[] {"GameState."}};
 		public static LogReaderInfo FullScreenFxLogReaderInfo => new LogReaderInfo { Name = "FullScreenFX", Reset = false};
+        //public static LogReaderInfo AchievementsLogInfo => new LogReaderInfo { Name = "Achievements" };
+        public static LogReaderInfo AchievementsLogInfo => new LogReaderInfo { Name = "Achievements_fake" };
 
-		public static class GameState
+        public static class GameState
 		{
 			public static readonly Regex BlockStartRegex =
 				new Regex(@".*BLOCK_START.*id=(?<id>\d*).*(cardId=(?<Id>(\w*))).*BlockType=POWER.*Target=(?<target>(.+))");
