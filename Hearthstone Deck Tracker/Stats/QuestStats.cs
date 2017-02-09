@@ -70,8 +70,12 @@ namespace Hearthstone_Deck_Tracker.Stats
         public void RemoveCompletedQuest(long id, string name, string desc, string group, string datecompleted)
         {
             var retrieved = _currentQuests.Where(q => q.QuestName == name);
-            System.Diagnostics.Debug.Assert(retrieved.Count() == 1);
-            _currentQuests.Remove(retrieved.First());
+            //System.Diagnostics.Debug.Assert(retrieved.Count() == 1);
+            // If for some reason quests with the same name exists, remove them
+            foreach (var qu in retrieved)
+            {
+                _currentQuests.Remove(qu);
+            }
             QuestInfo info = new QuestInfo(id, name, desc, group, retrieved.First().DateGiven, datecompleted);
             _completedQuests.Add(info);
         }
@@ -80,8 +84,11 @@ namespace Hearthstone_Deck_Tracker.Stats
         {
             QuestInfo info = new QuestInfo(id, name, desc, group, dategiven, null);
             var retrieved = _currentQuests.Where(q => q.QuestName == name);
-            System.Diagnostics.Debug.Assert(retrieved.Count() == 0);
-            _currentQuests.Add(info);
+            //System.Diagnostics.Debug.Assert(retrieved.Count() == 0);
+            if (retrieved.Count() == 0)
+            {
+                _currentQuests.Add(info);
+            }
         }
 
         public void RemoveCurrentQuest(long id, string name)
