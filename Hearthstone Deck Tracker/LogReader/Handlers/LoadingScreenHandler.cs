@@ -15,6 +15,7 @@ using Hearthstone_Deck_Tracker.Utility.Analytics;
 using Hearthstone_Deck_Tracker.Utility.Extensions;
 using Hearthstone_Deck_Tracker.Utility.Logging;
 using Hearthstone_Deck_Tracker.Windows;
+using Hearthstone_Deck_Tracker.Stats;
 
 #endregion
 
@@ -49,7 +50,10 @@ namespace Hearthstone_Deck_Tracker.LogReader.Handlers
 				if(game.CurrentMode == Mode.HUB && !_checkedMirrorStatus && (DateTime.Now - logLine.Time).TotalSeconds < 5)
 					CheckMirrorStatus();
 
-				if(game.CurrentMode == Mode.DRAFT)
+                if(game.CurrentMode == Mode.HUB && game.PreviousMode != Mode.HUB)
+                    QuestStats.Save();
+
+                if (game.CurrentMode == Mode.DRAFT)
 					Watchers.ArenaWatcher.Run();
 				else
 					Watchers.ArenaWatcher.Stop();

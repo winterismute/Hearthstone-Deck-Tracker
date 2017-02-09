@@ -29,6 +29,11 @@ namespace Hearthstone_Deck_Tracker.LogReader.Handlers
 
         private Dictionary<long, AchieveNotificationInfo> achieveNotificationsCache;
 
+        public AchievementsHandler()
+        {
+            achieveNotificationsCache = new Dictionary<long, AchieveNotificationInfo>();
+        }
+
         public void Handle(LogLineItem logLine, IGame game)
         {
             if (game.CurrentGameMode == GameMode.Spectator)
@@ -38,6 +43,11 @@ namespace Hearthstone_Deck_Tracker.LogReader.Handlers
             {
                 var match = AchieveNotificationRegex.Match(logLine.Line);
                 long ID = int.Parse(match.Groups["id"].Value);
+                if (achieveNotificationsCache.ContainsKey(ID))
+                {
+                    // TODO: purging out the last notification about this quest, not sure it's the best thing...
+                    achieveNotificationsCache.Remove(ID);
+                }
                 if (match.Groups["completed"].Value == "True")
                 {
                     achieveNotificationsCache.Add(ID, new AchieveNotificationInfo(true, false, false));
@@ -60,10 +70,11 @@ namespace Hearthstone_Deck_Tracker.LogReader.Handlers
                     AchieveNotificationInfo info = achieveNotificationsCache[ID];
                     string name = match.Groups["name"].Value;
                     string description = match.Groups["description"].Value;
+                    string group = match.Groups["group"].Value;
                     if (info.isNew)
                     {
                         long dategiven = long.Parse(match.Groups["dategiven"].Value);
-                        Stats.QuestStats.Instance.AddNewQuest(ID, name, description, dategiven.ToString());
+                        Stats.QuestStats.Instance.AddNewQuest(ID, name, description, group, dategiven.ToString());
                     }
                     else if (info.Removed)
                     {
@@ -72,8 +83,9 @@ namespace Hearthstone_Deck_Tracker.LogReader.Handlers
                     else if (info.Completed)
                     {
                         long datecompleted = long.Parse(match.Groups["datecompleted"].Value);
-                        Stats.QuestStats.Instance.RemoveCompletedQuest(ID, name, description, datecompleted.ToString());
+                        Stats.QuestStats.Instance.RemoveCompletedQuest(ID, name, description, group, datecompleted.ToString());
                     }
+                    achieveNotificationsCache.Remove(ID);
                 }
             }
 

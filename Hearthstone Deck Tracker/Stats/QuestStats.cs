@@ -13,6 +13,7 @@ using Hearthstone_Deck_Tracker.Utility.Logging;
 
 namespace Hearthstone_Deck_Tracker.Stats
 {
+    [XmlRoot(ElementName = "Quests")]
     public class QuestStats
     {
         private const string FileName = "QuestsLog.xml";
@@ -20,16 +21,12 @@ namespace Hearthstone_Deck_Tracker.Stats
         private static Lazy<QuestStats> _instance = new Lazy<QuestStats>(Load);
 
         [XmlArray(ElementName = "CurrentQuests")]
-        private List<QuestInfo> _currentQuests;
+        [XmlArrayItem(ElementName = "Quest")]
+        public List<QuestInfo> _currentQuests;
 
         [XmlArray(ElementName = "CompletedQuests")]
-        private List<QuestInfo> _completedQuests;
-
-        /*
-        static QuestStats()
-        {
-        }
-        */
+        [XmlArrayItem(ElementName = "Quest")]
+        public List<QuestInfo> _completedQuests;
 
         private QuestStats()
         {
@@ -40,8 +37,6 @@ namespace Hearthstone_Deck_Tracker.Stats
         public static QuestStats Instance => _instance.Value;
 
         private static string FilePath => Path.Combine(Config.AppDataPath, FileName);
-
-        //public List<GameInfo> GameInfos => _currentQuests ?? ();
 
         private static QuestStats Load()
         {
@@ -63,27 +58,27 @@ namespace Hearthstone_Deck_Tracker.Stats
                 }
             }
 
-            // Check whether one of the 2 lists is empty, add it empty if yes, and save
-
+            // Check whether one of the 2 lists is empty, add it empty if yes, and save?
             return instance;
         }
 
-        public static void Save() => XmlManager<QuestStats>.Save(FileName, _instance);
+        private static void Save(QuestStats instance) => XmlManager<QuestStats>.Save(FilePath, instance);
+        public static void Save() => Save(Instance);
 
         internal static void Reload() => _instance = new Lazy<QuestStats>(Load);
 
-        public void RemoveCompletedQuest(long id, string name, string desc, string datecompleted)
+        public void RemoveCompletedQuest(long id, string name, string desc, string group, string datecompleted)
         {
             var retrieved = _currentQuests.Where(q => q.QuestName == name);
             System.Diagnostics.Debug.Assert(retrieved.Count() == 1);
             _currentQuests.Remove(retrieved.First());
-            QuestInfo info = new QuestInfo(id, name, desc, retrieved.First().DateGiven, datecompleted);
+            QuestInfo info = new QuestInfo(id, name, desc, group, retrieved.First().DateGiven, datecompleted);
             _completedQuests.Add(info);
         }
 
-        public void AddNewQuest(long id, string name, string desc, string dategiven)
+        public void AddNewQuest(long id, string name, string desc, string group, string dategiven)
         {
-            QuestInfo info = new QuestInfo(id, name, desc, dategiven, null);
+            QuestInfo info = new QuestInfo(id, name, desc, group, dategiven, null);
             var retrieved = _currentQuests.Where(q => q.QuestName == name);
             System.Diagnostics.Debug.Assert(retrieved.Count() == 0);
             _currentQuests.Add(info);
@@ -105,11 +100,12 @@ namespace Hearthstone_Deck_Tracker.Stats
         {
         }
 
-        public QuestInfo(long qid, string qname, string qdesc, string qdateGiven, string qdateCompleted)
+        public QuestInfo(long qid, string qname, string qdesc, string group, string qdateGiven, string qdateCompleted)
         {
             QuestId = qid;
             QuestName = qname;
             QuestDescription = qdesc;
+            AchieveGroup = group;
             DateGiven = qdateGiven;
             DateCompleted = qdateCompleted;
         }
@@ -123,6 +119,9 @@ namespace Hearthstone_Deck_Tracker.Stats
 
         [XmlAttribute("questDescription")]
         public string QuestDescription { get; set; }
+
+        [XmlAttribute("achieveGroup")]
+        public string AchieveGroup { get; set; }
 
         [XmlAttribute("dateGiven")]
         public string DateGiven { get; set; }
